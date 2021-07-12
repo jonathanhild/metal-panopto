@@ -39,6 +39,7 @@ def results():
     Returns:
         string: Results
     """
+    return '<h1>Results</h1>'
 
 
 @app.route('/about')
