@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "venv/bin/python"
+    "python.pythonPath": "venv/bin/python",
+    "todoist.projectId": "2265596837"
 }
