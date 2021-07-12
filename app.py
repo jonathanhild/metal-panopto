@@ -29,3 +29,24 @@ def index():
         string: Hello, World! html
     """
     return '<h1>Hello, World!</h1>'
+
+
+@app.route('/results')
+def results():
+    """
+    Results from inference pipeline.
+
+    Returns:
+        string: Results
+    """
+
+
+@app.route('/about')
+def about():
+    """
+    About page.
+
+    Returns:
+        string: About
+    """
+    return '<h1>About</h1>'
