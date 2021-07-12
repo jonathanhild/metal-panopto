@@ -1,3 +1,4 @@
+autopep8==1.5.7
 click==8.0.1
 Flask==2.0.1
 itsdangerous==2.0.1
@@ -6,4 +7,5 @@ MarkupSafe==2.0.1
 pycodestyle==2.7.0
 pydocstyle==6.1.1
 snowballstemmer==2.1.0
+toml==0.10.2
 Werkzeug==2.0.1
