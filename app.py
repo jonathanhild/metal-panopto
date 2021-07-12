@@ -26,8 +26,9 @@ def index():
     Home page.
 
     Returns:
-        string: Hello, World! html
+        string: Hello, World!
     """
+
     return '<h1>Hello, World!</h1>'
 
 
@@ -39,6 +40,7 @@ def results():
     Returns:
         string: Results
     """
+
     return '<h1>Results</h1>'
 
 
@@ -50,4 +52,16 @@ def about():
     Returns:
         string: About
     """
+
     return '<h1>About</h1>'
+
+
+@app.route('/admin')
+def admin():
+    """
+    Admin page.
+
+    Returns:
+        string: Admin
+    """
+    return '<h1>Admin</h1>'
