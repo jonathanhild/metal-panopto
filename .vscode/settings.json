@@ -1,4 +1,5 @@
 {
     "python.pythonPath": "venv/bin/python",
-    "todoist.projectId": "2265596837"
+    "todoist.projectId": "2265596837",
+    "licenser.projectName": "VargScore"
 }
