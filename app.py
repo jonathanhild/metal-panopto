@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with VargScore.  If not, see <http://www.gnu.org/licenses/>.
 
-from flask import Flask
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
@@ -28,7 +28,6 @@ def index():
     Returns:
         string: Hello, World!
     """
-
     return '<h1>Hello, World!</h1>'
 
 
@@ -40,7 +39,6 @@ def results():
     Returns:
         string: Results
     """
-
     return '<h1>Results</h1>'
 
 
@@ -52,7 +50,6 @@ def about():
     Returns:
         string: About
     """
-
     return '<h1>About</h1>'
 
 
@@ -65,3 +62,17 @@ def admin():
         string: Admin
     """
     return '<h1>Admin</h1>'
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    """
+    Page not found.
+
+    Args:
+        e (Error): [description]
+
+    Returns:
+        [type]: [description]
+    """
+    return render_template('404.html'), 404
