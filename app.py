@@ -28,10 +28,10 @@ def index():
     Returns:
         string: Hello, World!
     """
-    return '<h1>Hello, World!</h1>'
+    return render_template('search.html')
 
 
-@app.route('/results')
+@app.route('/results', methods=['GET', 'POST'])
 def results():
     """
     Results from inference pipeline.
