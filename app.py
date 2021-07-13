@@ -31,15 +31,15 @@ def index():
     return render_template('search.html')
 
 
-@app.route('/results', methods=['GET', 'POST'])
-def results():
+@app.route('/report', methods=['GET', 'POST'])
+def report():
     """
-    Results from inference pipeline.
+    Report from inference pipeline.
 
     Returns:
-        string: Results
+        string: Report
     """
-    return '<h1>Results</h1>'
+    return '<h1>Report</h1>'
 
 
 @app.route('/about')
