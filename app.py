@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with VargScore.  If not, see <http://www.gnu.org/licenses/>.
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
@@ -31,7 +31,7 @@ def index():
     return render_template('search.html')
 
 
-@app.route('/report', methods=['GET', 'POST'])
+@app.route('/report', methods=['POST'])
 def report():
     """
     Report from inference pipeline.
@@ -39,7 +39,8 @@ def report():
     Returns:
         string: Report
     """
-    return '<h1>Report</h1>'
+    urlstring = request.args.get('urlstring')
+    return render_template('report.html', urlstring=urlstring)
 
 
 @app.route('/about')
@@ -50,7 +51,7 @@ def about():
     Returns:
         string: About
     """
-    return '<h1>About</h1>'
+    return render_template('about.html')
 
 
 @app.route('/admin')
@@ -61,7 +62,7 @@ def admin():
     Returns:
         string: Admin
     """
-    return '<h1>Admin</h1>'
+    return render_template('admin.html')
 
 
 @app.errorhandler(404)
