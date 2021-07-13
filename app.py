@@ -26,7 +26,7 @@ def index():
     Home page.
 
     Returns:
-        string: Hello, World!
+        render_template: Search block.
     """
     return render_template('search.html')
 
