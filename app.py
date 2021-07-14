@@ -15,9 +15,23 @@
 # You should have received a copy of the GNU General Public License
 # along with VargScore.  If not, see <http://www.gnu.org/licenses/>.
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, session, request
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'test'
+
+
+class BandURLForm(FlaskForm):
+    band_url = StringField('Band',
+                           validators=[DataRequired()],
+                           render_kw={
+                               'placeholder': 'e.g. https://www.metal-archives.com/bands/Froglord/3540467964'
+                           }
+                           )
+    submit = SubmitField('Submit')
 
 
 @app.route('/')
@@ -28,7 +42,8 @@ def index():
     Returns:
         render_template: Search block.
     """
-    return render_template('search.html')
+    form = BandURLForm()
+    return render_template('search.html', form=form)
 
 
 @app.route('/report', methods=['POST'])
@@ -39,8 +54,9 @@ def report():
     Returns:
         string: Report
     """
-    urlstring = request.args.get('urlstring')
-    return render_template('report.html', urlstring=urlstring)
+    form = BandURLForm()
+
+    return render_template('report.html', form=form, url=form.band_url.data)
 
 
 @app.route('/about')
