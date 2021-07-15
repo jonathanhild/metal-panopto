@@ -24,7 +24,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'test'
 
 
-class BandURLForm(FlaskForm):
+class SearchForm(FlaskForm):
     band_url = StringField('Band',
                            validators=[DataRequired()],
                            render_kw={
@@ -42,7 +42,7 @@ def index():
     Returns:
         render_template: Search block.
     """
-    form = BandURLForm()
+    form = SearchForm()
     return render_template('search.html', form=form)
 
 
@@ -54,7 +54,7 @@ def report():
     Returns:
         string: Report
     """
-    form = BandURLForm()
+    form = SearchForm()
 
     return render_template('report.html', form=form, url=form.band_url.data)
 
