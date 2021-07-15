@@ -18,22 +18,38 @@
 import requests
 from bs4 import BeautifulSoup
 
-BASE_URL = 'https://www.metal-archives.com'
 HEADER = {'user-agent': 'My-UA'}
 
 
-def band(url):
+def get_band_info(url):
+    """
+    Scrape https://www.metal-archives.com/bands/* endpoint.
+
+    Args:
+        url (str): A URL query string
+
+    Returns:
+        band_info (dict): Dictionary containing band information
+    """
+    band_info = {}
+
+    band_info['id'] = url.split('/')[-1]
+
     r = requests.get(url, headers=HEADER)
 
     html = r.text
     soup = BeautifulSoup(html, 'lxml')
 
-    band_dt = soup.find_all('dt')
-    band_dd = soup.find_all('dd')
-    band_info = dict(zip(band_dt, band_dd))
+    band_info['name'] = soup.find('h1').text
 
-    print(band_info)
+    dd = soup.find_all('dd')
 
+    band_info['country_of_origin'] = dd[0].text
+    band_info['location'] = dd[1].text
+    band_info['status'] = dd[2].text
+    band_info['formed_in'] = dd[3].text
+    band_info['years_active'] = dd[7].text
+    band_info['lyrical_theme'] = dd[5].text
+    band_info['current_label'] = dd[6].text
 
-if __name__ == '__main__':
-    band('https://www.metal-archives.com/bands/Wolves_in_the_Throne_Room/35741')
+    return band_info
