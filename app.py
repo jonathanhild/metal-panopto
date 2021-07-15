@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with VargScore.  If not, see <http://www.gnu.org/licenses/>.
 
-from flask import Flask, render_template, session, request
+from flask import Flask, render_template
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
@@ -34,7 +34,7 @@ class BandURLForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
     """
     Home page.
