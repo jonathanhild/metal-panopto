@@ -20,6 +20,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 
+from src.metallum import get_band_info
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'test'
 
@@ -43,6 +45,7 @@ def index():
         render_template: Search block.
     """
     form = SearchForm()
+
     return render_template('search.html', form=form)
 
 
@@ -54,9 +57,17 @@ def report():
     Returns:
         string: Report
     """
-    form = SearchForm()
 
-    return render_template('report.html', form=form, url=form.band_url.data)
+    url = None
+    band_info = None
+
+    form = SearchForm()
+    if form.validate_on_submit():
+        url = form.band_url.data
+        band_info = get_band_info(form.band_url.data)
+        form.band_url.data = ''
+
+    return render_template('report.html', form=form, url=url, band_info=band_info)
 
 
 @app.route('/about')

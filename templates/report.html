@@ -20,5 +20,16 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1>Report</h1>
-{{ url }}
+{% if url %}
+<h1>{{ url }}</h1>
+{% endif %}
+{% if band_info %}
+<p>{{ band_info.id }}</p>
+<p>{{ band_info.name }}</p>
+<p>{{ band_info.country_of_origin }}</p>
+<p>{{ band_info.location }}</p>
+<p>{{ band_info.status }}</p>
+<p>{{ band_info.formed_in }}</p>
+<p>{{ band_info.years_active }}</p>
+{% endif %}
 {% endblock %}
