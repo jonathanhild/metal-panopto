@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with VargScore.  If not, see <http://www.gnu.org/licenses/>.
 
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, session, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
@@ -27,12 +27,8 @@ app.config['SECRET_KEY'] = 'test'
 
 
 class SearchForm(FlaskForm):
-    band_url = StringField('Band',
-                           validators=[DataRequired()],
-                           render_kw={
-                               'placeholder': 'e.g. https://www.metal-archives.com/bands/Froglord/3540467964'
-                           }
-                           )
+    band_url = StringField('Band', validators=[DataRequired()],
+                           render_kw={'placeholder': 'e.g. https://www.metal-archives.com/bands/Froglord/3540467964'})
     submit = SubmitField('Submit')
 
 
@@ -45,11 +41,16 @@ def index():
         render_template: Search block.
     """
     form = SearchForm()
+    if form.validate_on_submit():
+        session['band_url'] = form.band_url.data
+        session['band_info'] = get_band_info(form.band_url.data)
+
+        return redirect(url_for('report'))
 
     return render_template('search.html', form=form)
 
 
-@app.route('/report', methods=['POST'])
+@app.route('/report')
 def report():
     """
     Report from inference pipeline.
@@ -57,17 +58,7 @@ def report():
     Returns:
         string: Report
     """
-
-    url = None
-    band_info = None
-
-    form = SearchForm()
-    if form.validate_on_submit():
-        url = form.band_url.data
-        band_info = get_band_info(form.band_url.data)
-        form.band_url.data = ''
-
-    return render_template('report.html', form=form, url=url, band_info=band_info)
+    return render_template('report.html')
 
 
 @app.route('/about')

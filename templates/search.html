@@ -19,7 +19,7 @@
 
 {% extends 'base.html' %}
 {% block content %}
-<form action="{{ url_for('report') }}" method="POST">
+<form method="POST">
     {{ form.hidden_tag() }}
     {{ form.band_url }}
     {{ form.submit() }}

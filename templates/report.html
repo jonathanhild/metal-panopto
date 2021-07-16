@@ -20,16 +20,18 @@
 {% extends 'base.html' %}
 {% block content %}
 <h1>Report</h1>
-{% if url %}
-<h1>{{ url }}</h1>
+{% if session['band_url'] %}
+<h1>{{ session['band_url'] }}</h1>
 {% endif %}
-{% if band_info %}
-<p>{{ band_info.id }}</p>
-<p>{{ band_info.name }}</p>
-<p>{{ band_info.country_of_origin }}</p>
-<p>{{ band_info.location }}</p>
-<p>{{ band_info.status }}</p>
-<p>{{ band_info.formed_in }}</p>
-<p>{{ band_info.years_active }}</p>
+{% if session['band_info'] %}
+<p>{{ session['band_info']['id'] }}</p>
+<p>{{ session['band_info']['name'] }}</p>
+<p>{{ session['band_info']['country_of_origin'] }}</p>
+<p>{{ session['band_info']['location'] }}</p>
+<p>{{ session['band_info']['status'] }}</p>
+<p>{{ session['band_info']['formed_in'] }}</p>
+<p>{{ session['band_info']['years_active'] }}</p>
+<p>{{ session['band_info']['lyrical_themes'] }}</p>
+<p>{{ session['band_info']['current_label'] }}</p>
 {% endif %}
 {% endblock %}
