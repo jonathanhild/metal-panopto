@@ -49,7 +49,7 @@ def get_band_info(url):
     band_info['status'] = dd[2].text
     band_info['formed_in'] = dd[3].text
     band_info['years_active'] = dd[7].text
-    band_info['lyrical_theme'] = dd[5].text
+    band_info['lyrical_themes'] = dd[5].text
     band_info['current_label'] = dd[6].text
 
     return band_info
