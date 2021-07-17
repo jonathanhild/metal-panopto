@@ -21,12 +21,21 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 
 from src.metallum import get_band_info
+from src.preprocessing import lyrical_themes_preprocessing
+from src.models import keyword_labeler
+from src.postprocessing import lyrical_themes_postprocessing
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'test'
 
 
 class SearchForm(FlaskForm):
+    """
+    Search form by www.metal-archives.com band URL.
+
+    Args:
+        FlaskForm (FlaskForm): A form for use in flask.
+    """
     band_url = StringField('Band', validators=[DataRequired()],
                            render_kw={'placeholder': 'e.g. https://www.metal-archives.com/bands/Froglord/3540467964'})
     submit = SubmitField('Submit')
@@ -38,12 +47,18 @@ def index():
     Home page.
 
     Returns:
-        render_template: Search block.
+        search.html (Response): Search block.
     """
     form = SearchForm()
     if form.validate_on_submit():
         session['band_url'] = form.band_url.data
         session['band_info'] = get_band_info(form.band_url.data)
+
+        # INFERENCE
+        lyrical_themes = session['band_info']['lyrical_themes']
+        lyrical_themes = lyrical_themes_preprocessing(lyrical_themes)
+        lyrical_themes = keyword_labeler(lyrical_themes)
+        session['band_info']['lyrical_themes'] = lyrical_themes_postprocessing(lyrical_themes)
 
         return redirect(url_for('report'))
 
@@ -56,7 +71,7 @@ def report():
     Report from inference pipeline.
 
     Returns:
-        string: Report
+        report.html (Response): Report block.
     """
     return render_template('report.html')
 
@@ -67,7 +82,7 @@ def about():
     About page.
 
     Returns:
-        string: About
+        about.html (Response): About block.
     """
     return render_template('about.html')
 
@@ -78,7 +93,7 @@ def admin():
     Admin page.
 
     Returns:
-        string: Admin
+        admin.html (Response): Admin block.
     """
     return render_template('admin.html')
 
@@ -89,9 +104,9 @@ def page_not_found(e):
     Page not found.
 
     Args:
-        e (Error): [description]
+        e (Error): 404 Page Not Found.
 
     Returns:
-        [type]: [description]
+        404.html (Response): 404 block.
     """
     return render_template('404.html'), 404
