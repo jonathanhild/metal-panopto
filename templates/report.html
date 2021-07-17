@@ -31,7 +31,7 @@
 <p>{{ session['band_info']['status'] }}</p>
 <p>{{ session['band_info']['formed_in'] }}</p>
 <p>{{ session['band_info']['years_active'] }}</p>
-<p>{{ session['band_info']['lyrical_themes'] }}</p>
+<p>{{ session['band_info']['lyrical_themes']|safe }}</p>
 <p>{{ session['band_info']['current_label'] }}</p>
 {% endif %}
 {% endblock %}
