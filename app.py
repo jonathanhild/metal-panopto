@@ -34,7 +34,7 @@ class SearchForm(FlaskForm):
     Search form by www.metal-archives.com band URL.
 
     Args:
-        FlaskForm (FlaskForm): A form for use in flask.
+        SearchForm (FlaskForm): An instance of SearchForm for use in flask.
     """
     band_url = StringField('Band', validators=[DataRequired()],
                            render_kw={'placeholder': 'e.g. https://www.metal-archives.com/bands/Froglord/3540467964'})
