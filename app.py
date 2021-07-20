@@ -16,22 +16,26 @@
 # along with VargScore.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+from datetime import datetime
 
+from dotenv import load_dotenv
 from flask import Flask, render_template, redirect, session, url_for
+from flask_sqlalchemy import SQLAlchemy
 
 from src.forms import SearchForm
 from src.metallum import get_band_info
 from src.preprocessing import lyrical_themes_preprocessing
 from src.models import keyword_labeler
 from src.postprocessing import lyrical_themes_postprocessing
-from src.mappings import SearchHistory
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+load_dotenv(basedir, '.env')
+
 # Flask App configuration
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'test'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
 # Flask SQLAlchemy configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'data', 'vargdb.sqlite')}"
@@ -51,6 +55,11 @@ def index():
     if form.validate_on_submit():
         session['band_url'] = form.band_url.data
         session['band_info'] = get_band_info(form.band_url.data)
+
+        search_history = SearchHistory()
+        search_history.search_text = form.band_url.data
+        db.session.add(search_history)
+        db.session.commit()
 
         # INFERENCE
         lyrical_themes = session['band_info']['lyrical_themes']
@@ -108,3 +117,23 @@ def page_not_found(e):
         404.html (Response): 404 block.
     """
     return render_template('404.html'), 404
+
+
+class SearchHistory(db.Model):
+    """
+    Model for search history.
+
+    Args:
+        db.Model (Model): Flask SQLAlchemy object.
+
+    Attrs:
+        id (INTEGER): Table primary key.
+        search_text (TEXT): Search text from search form.
+        timestamp (DATETIME): Timestamp when search was made.
+
+    """
+    __tablename__ = 'search_history'
+
+    id = db.Column(db.Integer, primary_key=True)
+    search_text = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, default=datetime.now())
