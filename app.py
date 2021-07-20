@@ -15,30 +15,28 @@
 # You should have received a copy of the GNU General Public License
 # along with VargScore.  If not, see <http://www.gnu.org/licenses/>.
 
-from flask import Flask, render_template, redirect, session, url_for
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
+import os
 
+from flask import Flask, render_template, redirect, session, url_for
+
+from src.forms import SearchForm
 from src.metallum import get_band_info
 from src.preprocessing import lyrical_themes_preprocessing
 from src.models import keyword_labeler
 from src.postprocessing import lyrical_themes_postprocessing
+from src.mappings import SearchHistory
 
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+# Flask App configuration
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'test'
 
-
-class SearchForm(FlaskForm):
-    """
-    Search form by www.metal-archives.com band URL.
-
-    Args:
-        SearchForm (FlaskForm): An instance of SearchForm for use in flask.
-    """
-    band_url = StringField('Band', validators=[DataRequired()],
-                           render_kw={'placeholder': 'e.g. https://www.metal-archives.com/bands/Froglord/3540467964'})
-    submit = SubmitField('Submit')
+# Flask SQLAlchemy configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'data', 'vargdb.sqlite')}"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
 
 @app.route('/', methods=['GET', 'POST'])
