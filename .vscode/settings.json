@@ -1,5 +1,13 @@
 {
     "python.pythonPath": "venv/bin/python",
     "todoist.projectId": "2265596837",
-    "licenser.projectName": "VargScore"
+    "licenser.projectName": "VargScore",
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "vargdb",
+            "database": "${workspaceFolder:vargscore}/data/vargdb.sqlite"
+        }
+    ]
 }
