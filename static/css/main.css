@@ -17,7 +17,19 @@
  * along with VargScore.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-.sketch{
+ @import url('https://fonts.googleapis.com/css2?family=Quicksand&family=UnifrakturMaguntia&display=swap');
+
+ body{
+    font-family: 'Quicksand', sans-serif;
+    text-align: center;
+ }
+
+ .title{
+    font-family: 'UnifrakturMaguntia', cursive;
+    font-size: 6rem;
+ }
+ 
+ .sketch{
     color: red;
     font-weight: bold;
 }
