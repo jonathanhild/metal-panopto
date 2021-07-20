@@ -14,6 +14,7 @@ lxml==4.6.3
 MarkupSafe==2.0.1
 pycodestyle==2.7.0
 pydocstyle==6.1.1
+python-dotenv==0.18.0
 requests==2.25.1
 snowballstemmer==2.1.0
 soupsieve==2.2.1
