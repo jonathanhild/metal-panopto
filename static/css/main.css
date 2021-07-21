@@ -23,7 +23,11 @@
  body{
     font-family: 'Quicksand', sans-serif;
     text-align: center;
-    background-color: black;
+    background: linear-gradient(
+       rgba(0, 0, 0, 0.75), 
+       rgba(0, 0, 0, 0.75)), 
+       url('../img/bg.jpg'
+       ) no-repeat center center fixed;
  }
 
 ::selection, ::-moz-selection{
