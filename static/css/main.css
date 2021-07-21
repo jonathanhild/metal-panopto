@@ -18,18 +18,146 @@
  */
 
  @import url('https://fonts.googleapis.com/css2?family=Quicksand&family=UnifrakturMaguntia&display=swap');
+ @import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css");
 
  body{
     font-family: 'Quicksand', sans-serif;
     text-align: center;
+    background-color: black;
+ }
+
+::selection, ::-moz-selection{
+    color: black;
+    background-color: white;
  }
 
  .title{
     font-family: 'UnifrakturMaguntia', cursive;
     font-size: 6rem;
+    color: white;
+ }
+
+ .brand{
+    text-decoration: none;
+ }
+
+ .brand:hover{
+    color: white;
+    text-decoration: none;
+
  }
  
  .sketch{
-    color: red;
+    color: #923133;
+    text-shadow: 1px 1px #92313388;
     font-weight: bold;
+}
+
+.tinytext{
+   font-size: 0.66rem;
+   text-align: left;
+}
+
+a{
+   color: white;
+}
+
+a:hover{
+   color: #923133; 
+}
+
+.nav-link{
+   color: white;
+}
+
+.nav-link:hover{
+   color: #923133;
+}
+
+.nav-link:focus{
+   color: #923133;
+}
+
+.nav-link:focus-visible{
+   outline: #923133;
+}
+
+input[type=text]:active{
+   outline: white;
+}
+
+input[type=text]:focus{
+   color: white;
+   caret-color: white;
+   border-color: white;
+   box-shadow: none;
+   outline: none;
+}
+
+input[type=text]:focus-visible{
+   outline: white;
+}
+
+input[type=submit]{
+   color: white;
+   background-color: #923133;
+}
+
+
+input[type=submit]:active{
+   color: black;
+   background-color: white;
+   border-color: white;
+   box-shadow: none;
+}
+
+
+input[type=submit]:focus{
+   color: black;
+   background-color: white;
+   border-color: white;
+   box-shadow: none;
+}
+
+input[type=submit]:focus-visible{
+   outline: none;
+}
+
+.form-control{
+   border-color: #923133;
+}
+
+.btn-outline-light{
+   border-color: #923133;
+}
+.btn-outline-light:hover{
+   color: white;
+   background-color: #923133;
+   border-color: #923133;
+}
+
+.btn-outline-light{
+   box-shadow: none;
+}
+
+a:hover> i{
+   color: black;
+}
+
+a:focus> i{
+   color: black;
+}
+
+@media (min-width: 576px){
+   #dawnrayd{
+      width: 420px;
+      height: 236px;
+   }
+}
+
+@media (min-width: 768px){
+   #dawnrayd{
+      width: 640px;
+      height: 360px;
+   }
 }

@@ -19,9 +19,17 @@
 
 {% extends 'base.html' %}
 {% block content %}
+<div>
+    <p class="text-light pb-4">
+        VargScore is a machine learning algorithm trained to find connections latent connections to national
+        socialist metal
+    </p>
+</div>
 <form method="POST">
-    {{ form.hidden_tag() }}
-    {{ form.band_url }}
-    {{ form.submit() }}
+    <div class="input-group input-group-lg">
+        {{ form.hidden_tag() }}
+        {{ form.band_url(class='form-control form-control-lg text-center text-light bg-dark') }}
+        {{ form.submit(class='btn btn-outline-light btn-lg') }}
+    </div>
 </form>
 {% endblock %}
