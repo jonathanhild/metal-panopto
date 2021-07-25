@@ -21,7 +21,23 @@ from bs4 import BeautifulSoup
 HEADER = {'user-agent': 'My-UA'}
 
 
-def get_band_info(url):
+def _metallum_request(endpoint=None, id=None):
+    base_url = 'https://www.metal-archives.com'
+    header = {'user-agent': 'My-UA'}
+
+    url = f'{base_url}{endpoint}{id}'
+
+    r = requests.get(url, headers=header)
+
+    return r
+
+
+def _extract_id(url):
+    id = url.split('/')[-1]
+    return id
+
+
+def extract_band_info(url):
     """
     Scrape https://www.metal-archives.com/bands/* endpoint.
 
