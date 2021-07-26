@@ -75,7 +75,9 @@ class Album(db.Model):
     format = db.Column(db.Text)
     limitation = db.Column(db.Text)
     additional_notes = db.Column(db.Text)
+    songs = db.relationship('Song', backref=db.backref('album'))
     band_id = db.Column(db.Integer, db.ForeignKey('band.id'))
+    timestamp = db.Column(db.DateTime, default=datetime.now())
 
 
 class Song(db.Model):
@@ -87,3 +89,5 @@ class Song(db.Model):
     title = db.Column(db.Text)
     length = db.Column(db.Text)
     lyrics = db.Column(db.Text)
+    album_id = db.Column(db.Integer, db.ForeignKey('album.id'))
+    timestamp = db.Column(db.DateTime, default=datetime.now())
