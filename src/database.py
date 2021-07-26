@@ -56,12 +56,8 @@ class Band(db.Model):
     years_active = db.Column(db.Text)
     lyrical_themes = db.Column(db.Text)
     read_more_text = db.Column(db.Text)
-    current_label = db.relationship('Label')
+    current_label = db.Column(db.Text)
     discography = db.relationship('Album', backref=db.backref('band'))
-    members = db.relationship('Artist', )
-    reviews = db.relationship('Review', )
-    similar = db.relationship('BandSimilar', backref=db.backref('band'))
-    links = db.relationship('Link', backref=db.backref('band'))
     timestamp = db.Column(db.DateTime, default=datetime.now())
 
 
@@ -75,7 +71,7 @@ class Album(db.Model):
     release_date = db.Column(db.Text)
     catalog_id = db.Column(db.Text)
     version_desc = db.Column(db.Text)
-    label = db.relationship('Label', backref=db.backref('album'))
+    label = db.Column(db.Text)
     format = db.Column(db.Text)
     limitation = db.Column(db.Text)
     additional_notes = db.Column(db.Text)
@@ -91,74 +87,3 @@ class Song(db.Model):
     title = db.Column(db.Text)
     length = db.Column(db.Text)
     lyrics = db.Column(db.Text)
-
-
-class Artist(db.Model):
-
-    __tablename__ = 'artist'
-
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text)
-    real_name = db.Column(db.Text)
-    age = db.Column(db.Text)
-    place_of_origin = db.Column(db.Text)
-    gender = db.Column(db.Text)
-    links = db.relationship('Link', backref=db.backref('artist'))
-
-
-class Review(db.Model):
-
-    __tablename__ = 'review'
-
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.Text)
-    date = db.Column(db.DateTime)
-    based_on = db.Column(db.Text)
-    rating_pct = db.Column(db.Integer)
-    text = db.Column(db.Text)
-
-
-class BandSimilar(db.Model):
-
-    __tablename__ = 'band_similar'
-
-    id = db.Column(db.Integer, primary_key=True)
-    band_id = db.Column(db.Integer, db.ForeignKey('band.id'))
-    band_related_id = db.Column(db.Integer, db.ForeignKey('band.id'))
-
-
-class Link(db.Model):
-
-    __tablename__ = 'link'
-
-    id = db.Column(db.Integer, primary_key=True)
-    link = db.Column(db.Text)
-    link_url = db.Column(db.Text)
-
-
-class Label(db.Model):
-
-    __tablename__ = 'label'
-
-    id = db.Column(db.Integer, primary_key=True)
-    label_name = db.Column(db.Text)
-    address = db.Column(db.Text)
-    country = db.Column(db.Text)
-    phone_no = db.Column(db.Text)
-    status = db.Column(db.Text)
-    styles_specialities = db.Column(db.Text)
-    founding_date = db.Column(db.Text)
-    sub_labels = db.relationship('LabelSublabel')
-    online_shopping = db.Column(db.Text)
-    website = db.Column(db.Text)
-    email = db.Column(db.Text)
-    additional_notes = db.Column(db.Text)
-
-
-class LabelSublabel(db.Model):
-
-    __tablename__ = 'label_sublabel'
-
-    id = db.Column(db.Integer, primary_key=True)
-    label_id = db.Column(db.Integer, db.ForeignKey('label.id'))
-    sublabel_id = db.Column(db.Integer, db.ForeignKey('label.id'))
