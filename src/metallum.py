@@ -15,29 +15,40 @@
 # You should have received a copy of the GNU General Public License
 # along with VargScore.  If not, see <http://www.gnu.org/licenses/>.
 
+from urllib.parse import urljoin, urlsplit
 import requests
 from bs4 import BeautifulSoup
 
 HEADER = {'user-agent': 'My-UA'}
 
 
-def _metallum_request(endpoint=None, id=None):
-    base_url = 'https://www.metal-archives.com'
+def _metallum_request(endpoint, id, base_url=None):
+    if not base_url:
+        base_url = 'https://www.metal-archives.com'
+
     header = {'user-agent': 'My-UA'}
 
-    url = f'{base_url}{endpoint}{id}'
+    url = urljoin(base=base_url, url=f'{endpoint}{id}')
 
     r = requests.get(url, headers=header)
+
+    try:
+        r.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        return 'Error' + str(e)
 
     return r
 
 
-def _extract_id(url):
-    id = url.split('/')[-1]
-    return id
+def find_id(url):
+    url_parts = url.split('/')
+    for part in url_parts:
+        if part.isnumeric():
+            return part
+    return None
 
 
-def extract_band_info(url):
+def get_band_info(id):
     """
     Scrape https://www.metal-archives.com/bands/* endpoint.
 
@@ -47,19 +58,16 @@ def extract_band_info(url):
     Returns:
         band_info (dict): Dictionary containing band information
     """
+    endpoint = 'band/view/id/'
     band_info = {}
+    band_info['id'] = id
 
-    band_info['id'] = url.split('/')[-1]
+    response = _metallum_request(endpoint, id)
+    soup = BeautifulSoup(response.text, 'lxml')
 
-    r = requests.get(url, headers=HEADER)
-
-    html = r.text
-    soup = BeautifulSoup(html, 'lxml')
-
-    band_info['name'] = soup.find('h1').text
+    band_info['name'] = soup.find('h1', {'class': 'band_name'}).text
 
     dd = soup.find_all('dd')
-
     band_info['country_of_origin'] = dd[0].text
     band_info['location'] = dd[1].text
     band_info['status'] = dd[2].text
