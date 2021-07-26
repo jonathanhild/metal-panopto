@@ -21,7 +21,7 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, redirect, session, url_for
 
 from src.forms import SearchForm
-from src.metallum import extract_band_info
+from src.metallum import find_id, get_band_info
 from src.preprocessing import lyrical_themes_preprocessing
 from src.models import keyword_labeler
 from src.postprocessing import lyrical_themes_postprocessing
@@ -53,7 +53,8 @@ def index():
     form = SearchForm()
     if form.validate_on_submit():
         session['band_url'] = form.band_url.data
-        session['band_info'] = extract_band_info(form.band_url.data)
+        session['id'] = find_id(session['band_url'])
+        session['band_info'] = get_band_info(session['id'])
 
         search_history = SearchHistory()
         search_history.search_text = form.band_url.data
