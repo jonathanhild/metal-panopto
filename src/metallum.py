@@ -76,21 +76,6 @@ def scrape_robots_txt():
     return robots
 
 
-def get_band_list():
-    endpoint = 'browse/ajax-letter/l/'
-    letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
-               'O', 'P', 'Q', 'R' 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'NBR', '~']
-
-    query_params = {'sEcho': '1', 'iDisplayStart': 0, 'iDisplayLength': 500}
-
-    band_list = []
-
-    for letter in letters:
-        response = _metallum_request()
-
-    return band_list
-
-
 def scrape_band(id):
     band_endpoint = 'band/view/id/'
     read_more_endpoint = 'band/read-more/id/'
