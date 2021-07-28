@@ -16,21 +16,24 @@
 # along with VargScore.  If not, see <http://www.gnu.org/licenses/>.
 
 from urllib.parse import urljoin
+
 import requests
 from bs4 import BeautifulSoup
+
+from database import Album, Band
 
 HEADER = {'user-agent': 'My-UA'}
 
 
-def _metallum_request(endpoint, id, base_url=None):
+def _metallum_request(endpoint=None, id=None, base_url=None, endpart=None, params=None):
     if not base_url:
         base_url = 'https://www.metal-archives.com'
 
     header = {'user-agent': 'My-UA'}
 
-    url = urljoin(base=base_url, url=f'{endpoint}{id}')
+    url = urljoin(base=base_url, url=f'{endpoint}{id}{endpart}')
 
-    r = requests.get(url, headers=header)
+    r = requests.get(url, headers=header, params=params)
 
     try:
         r.raise_for_status()
@@ -48,32 +51,72 @@ def find_id(url):
     return None
 
 
-def get_band_info(id):
-    """
-    Scrape https://www.metal-archives.com/bands/* endpoint.
+def scrape_robots_txt():
+    robots = {}
+    n = 0
+    r = _metallum_request('robots.txt', '')
+    lines = r.text.splitlines()
+    for line in lines:
+        line = line.split(': ')
+        if line[0] == 'Disallow':
+            robots[line[0] + f'_{n}'] = line[1]
+            n += 1
+        else:
+            robots[line[0]] = line[1]
+    return robots
 
-    Args:
-        url (str): A URL query string
 
-    Returns:
-        band_info (dict): Dictionary containing band information
-    """
-    endpoint = 'band/view/id/'
-    band_info = {}
-    band_info['id'] = id
+def get_band_list():
+    endpoint = 'browse/ajax-letter/l/'
+    letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
+               'O', 'P', 'Q', 'R' 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'NBR', '~']
 
-    response = _metallum_request(endpoint, id)
-    soup = BeautifulSoup(response.text, 'lxml')
+    query_params = {'sEcho': '1', 'iDisplayStart': 0, 'iDisplayLength': 500}
 
-    band_info['name'] = soup.find('h1', {'class': 'band_name'}).text
+    band_list = []
 
-    dd = soup.find_all('dd')
-    band_info['country_of_origin'] = dd[0].text
-    band_info['location'] = dd[1].text
-    band_info['status'] = dd[2].text
-    band_info['formed_in'] = dd[3].text
-    band_info['years_active'] = dd[7].text
-    band_info['lyrical_themes'] = dd[5].text
-    band_info['current_label'] = dd[6].text
+    for letter in letters:
+        response = _metallum_request()
 
-    return band_info
+    return band_list
+
+
+def scrape_band(band_id):
+    band_endpoint = 'band/view/id/'
+    read_more_endpoint = 'band/read-more/id/'
+    albums_endpoint = 'band/discography/id/'
+    albums_all_tab = '/tab/all/'
+    band = Band()
+    band.id = band_id
+
+    # Band Main Page
+    band_response = _metallum_request(band_endpoint, band_id)
+    band_dd = BeautifulSoup(band_response.text, 'lxml')
+
+    band.name = band_dd.find('h1', {'class': 'band_name'}).text
+
+    band_dd = band_dd.find_all('dd')
+    band.country_of_origin = band_dd[0].text
+    band.location = band_dd[1].text
+    band.status = band_dd[2].text
+    band.formed_in = band_dd[3].text
+    band.years_active = band_dd[7].text
+    band.lyrical_themes = band_dd[5].text
+    band.current_label = band_dd[6].text
+
+    # Band Read More
+    read_more_response = _metallum_request(read_more_endpoint, band_id)
+    band.read_more_text = read_more_response.text
+
+    # Band Discography
+    albums_response = _metallum_request(albums_endpoint, band_id, endpart=albums_all_tab)
+
+    album_links = BeautifulSoup(albums_response.text, 'lxml')
+
+    # M-A discography class labels are: album, other, demo, single.
+    band.discography = []
+    for a in album_links.find_all('a', {'class': ['album', 'demo', 'other', 'single']}):
+        album = Album(id=find_id(a['href']), title=a.link)
+        band.discography.append(album)
+
+    return band

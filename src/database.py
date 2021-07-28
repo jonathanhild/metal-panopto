@@ -48,7 +48,7 @@ class Band(db.Model):
     __tablename__ = 'band'
 
     id = db.Column(db.Integer, primary_key=True)
-    band_name = db.Column(db.Text)
+    name = db.Column(db.Text)
     country_of_origin = db.Column(db.Text)
     location = db.Column(db.Text)
     status = db.Column(db.Text)
