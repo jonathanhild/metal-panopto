@@ -19,8 +19,9 @@ from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
+from requests.sessions import session
 
-from database import Album, Band
+from database import Album, Band, Song
 
 HEADER = {'user-agent': 'My-UA'}
 
@@ -47,8 +48,17 @@ def find_id(url):
     url_parts = url.split('/')
     for part in url_parts:
         if part.isnumeric():
-            return part
+            return int(part)
+        else:
+            try:
+                raise TypeError
+            except TypeError as e:
+                print(e)
     return None
+
+
+def clean_song_no(no):
+    return int(no.strip().replace('.', ''))
 
 
 def scrape_robots_txt():
@@ -81,16 +91,16 @@ def get_band_list():
     return band_list
 
 
-def scrape_band(band_id):
+def scrape_band(id):
     band_endpoint = 'band/view/id/'
     read_more_endpoint = 'band/read-more/id/'
     albums_endpoint = 'band/discography/id/'
     albums_all_tab = '/tab/all/'
     band = Band()
-    band.id = band_id
+    band.id = id
 
     # Band Main Page
-    band_response = _metallum_request(band_endpoint, band_id)
+    band_response = _metallum_request(band_endpoint, id)
 
     soup = BeautifulSoup(band_response.text, 'lxml')
 
@@ -106,12 +116,12 @@ def scrape_band(band_id):
     band.current_label = band_dd[6].text
 
     # Band Read More
-    read_more_response = _metallum_request(read_more_endpoint, band_id)
+    read_more_response = _metallum_request(read_more_endpoint, id)
     soup = BeautifulSoup(read_more_response.text, 'lxml')
     band.read_more_text = soup.text
 
     # Band Discography
-    albums_response = _metallum_request(albums_endpoint, band_id, endpart=albums_all_tab)
+    albums_response = _metallum_request(albums_endpoint, id, endpart=albums_all_tab)
 
     soup = BeautifulSoup(albums_response.text, 'lxml')
     album_links = soup.find_all('a', {'class': ['album', 'demo', 'other', 'single']})
@@ -119,11 +129,49 @@ def scrape_band(band_id):
     # M-A discography class labels are: album, other, demo, single.
     band.discography = []
     for a in album_links:
-        album = Album(id=find_id(a['href']), title=a.link)
+        album = Album(id=find_id(a['href']), title=a.link, band_id=id)
         band.discography.append(album)
 
     return band
 
 
-if __name__ == '__main__':
-    scrape_band(38)
+def scrape_album(id, album=None):
+    album_endpoint = 'albums/view/id/'
+    lyrics_endpoint = 'release/ajax-view-lyrics/id/'
+
+    album_response = _metallum_request(album_endpoint, id=id)
+    soup = BeautifulSoup(album_response.text, 'lxml')
+
+    if album:
+        # Update album info from response
+        pass
+    else:
+        # Create new album
+        album = Album(id=id)
+        album.title = soup.find('h1', {'class': 'album_name'}).text
+
+        album_dd = soup.find_all('dd')
+        album.type = album_dd[0].text
+        album.release_date = album_dd[1].text
+        album.catalog_id = album_dd[2].text
+        album.version_desc = album_dd[3].text
+        album.label = album_dd[4].text
+        album.format = album_dd[5].text
+        album.limitation = album_dd[6].text
+        album.additional_notes = soup.find('div', {'id': 'album_tabs_notes'}).text
+        album.songs = []
+        album.band_id = find_id(soup.find('h2').a.attrs['href'])
+
+        songs_tr = soup.find_all('tr', {'class': ['even', 'odd']})
+        for tr in songs_tr:
+            song = Song(album_id=id)
+            song.id = find_id(tr.contents[1].a.attrs['name'][:-1])
+            song.no = clean_song_no(tr.contents[1].text)
+            song.title = tr.contents[3].text
+            song.length = tr.contents[5].text
+            lyrics_response = _metallum_request(lyrics_endpoint, id=song.id)
+            song.lyrics = lyrics_response.text
+
+            album.songs.append(song)
+
+    return album
