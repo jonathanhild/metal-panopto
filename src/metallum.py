@@ -91,11 +91,12 @@ def scrape_band(band_id):
 
     # Band Main Page
     band_response = _metallum_request(band_endpoint, band_id)
-    band_dd = BeautifulSoup(band_response.text, 'lxml')
 
-    band.name = band_dd.find('h1', {'class': 'band_name'}).text
+    soup = BeautifulSoup(band_response.text, 'lxml')
 
-    band_dd = band_dd.find_all('dd')
+    band.name = soup.find('h1', {'class': 'band_name'}).text
+
+    band_dd = soup.find_all('dd')
     band.country_of_origin = band_dd[0].text
     band.location = band_dd[1].text
     band.status = band_dd[2].text
@@ -106,17 +107,23 @@ def scrape_band(band_id):
 
     # Band Read More
     read_more_response = _metallum_request(read_more_endpoint, band_id)
-    band.read_more_text = read_more_response.text
+    soup = BeautifulSoup(read_more_response.text, 'lxml')
+    band.read_more_text = soup.text
 
     # Band Discography
     albums_response = _metallum_request(albums_endpoint, band_id, endpart=albums_all_tab)
 
-    album_links = BeautifulSoup(albums_response.text, 'lxml')
+    soup = BeautifulSoup(albums_response.text, 'lxml')
+    album_links = soup.find_all('a', {'class': ['album', 'demo', 'other', 'single']})
 
     # M-A discography class labels are: album, other, demo, single.
     band.discography = []
-    for a in album_links.find_all('a', {'class': ['album', 'demo', 'other', 'single']}):
+    for a in album_links:
         album = Album(id=find_id(a['href']), title=a.link)
         band.discography.append(album)
 
     return band
+
+
+if __name__ == '__main__':
+    scrape_band(38)
