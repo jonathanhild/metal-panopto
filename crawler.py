@@ -26,7 +26,6 @@ db.init_app(app)
 
 # @click.command('genre', help=f'Scrape by genre: {GENRE}')
 def fetch_bands_by_genre(g):
-    record_count = 0
     total_records = 999_999_999
     band_ids = []
 
@@ -36,7 +35,7 @@ def fetch_bands_by_genre(g):
         endpoint = f'browse/ajax-genre/g/{g}'
         endpart = '/json/1'
 
-    while record_count < total_records:
+    while len(band_ids) < total_records:
         print(f"Fetching {payload['iDisplayStart']} to {payload['iDisplayStart'] + 500} of {total_records}")
         r = _metallum_request(endpoint=endpoint, id='', endpart=endpart, params=payload)
         json = r.json()
@@ -47,7 +46,6 @@ def fetch_bands_by_genre(g):
             soup = BeautifulSoup(i[0], 'lxml')
             href = soup.a['href']
             band_ids.append(find_id(href))
-            record_count += 1  # Update the record count
 
         payload['iDisplayStart'] += payload['iDisplayLength']
 
@@ -58,7 +56,10 @@ def fetch_bands_by_genre(g):
 
 
 def processing(band_ids):
-    print(len(band_ids))
+    print('length: ' + len(band_ids))
+    print('band 0 id: ' + band_ids[0])
+    print('band 499 id: ' + band_ids[499])
+    print('band 500 id: ' + band_ids[500])
 
 
 if __name__ == '__main__':
