@@ -19,7 +19,6 @@ from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
-from requests.sessions import session
 
 from database import Album, Band, Song
 
