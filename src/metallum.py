@@ -20,20 +20,18 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
-from database import Album, Band, Song
+from .database import Album, Band, Song
 
-HEADER = {'user-agent': 'My-UA'}
+HEADER = {'User-Agent': 'Mozilla/5.0 Gecko/20100101 Firefox/90.0'}
 
 
 def _metallum_request(endpoint=None, id=None, base_url=None, endpart=None, params=None):
     if not base_url:
         base_url = 'https://www.metal-archives.com'
 
-    header = {'user-agent': 'My-UA'}
-
     url = urljoin(base=base_url, url=f'{endpoint}{id}{endpart}')
 
-    r = requests.get(url, headers=header, params=params)
+    r = requests.get(url, headers=HEADER, params=params)
 
     try:
         r.raise_for_status()
@@ -63,7 +61,7 @@ def clean_song_no(no):
 def scrape_robots_txt():
     robots = {}
     n = 0
-    r = _metallum_request('robots.txt', '')
+    r = _metallum_request('robots.txt', id='', endpart='')
     lines = r.text.splitlines()
     for line in lines:
         line = line.split(': ')
