@@ -36,11 +36,12 @@ def fetch_bands_by_genre(g):
         endpart = '/json/1'
 
     while len(band_ids) < total_records:
-        print(f"Fetching {payload['iDisplayStart']} to {payload['iDisplayStart'] + 500} of {total_records}")
         r = _metallum_request(endpoint=endpoint, id='', endpart=endpart, params=payload)
         json = r.json()
 
         total_records = json['iTotalRecords']
+
+        print(f"Fetching {payload['iDisplayStart']} to {payload['iDisplayStart'] + 500} of {total_records}")
 
         for i in json['aaData']:
             soup = BeautifulSoup(i[0], 'lxml')
