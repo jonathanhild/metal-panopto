@@ -43,6 +43,7 @@ def _metallum_request(endpoint=None, id=None, base_url=None, endpart=None, param
 
 def find_id(url):
     url_parts = url.split('/')
+    url_parts.reverse()
     for part in url_parts:
         if part.isnumeric():
             return int(part)
