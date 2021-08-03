@@ -49,6 +49,7 @@ soupsieve==2.2.1
 SQLAlchemy==1.4.21
 toml==0.10.2
 tornado==6.1
+tqdm==4.62.0
 traitlets==5.0.5
 urllib3==1.26.6
 visitor==0.1.3
