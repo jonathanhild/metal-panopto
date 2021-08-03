@@ -57,7 +57,7 @@ class Band(db.Model):
     lyrical_themes = db.Column(db.Text)
     read_more_text = db.Column(db.Text)
     current_label = db.Column(db.Text)
-    discography = db.relationship('Album', backref=db.backref('band'))
+    discography = db.relationship('Album', backref=backref('band'))
     timestamp = db.Column(db.DateTime, default=datetime.now())
 
 
@@ -75,7 +75,7 @@ class Album(db.Model):
     format = db.Column(db.Text)
     limitation = db.Column(db.Text)
     additional_notes = db.Column(db.Text)
-    songs = db.relationship('Song', backref=db.backref('album'))
+    songs = db.relationship('Song', backref=backref('album'))
     band_id = db.Column(db.Integer, db.ForeignKey('band.id'))
     timestamp = db.Column(db.DateTime, default=datetime.now())
 
