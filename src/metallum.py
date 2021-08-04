@@ -15,30 +15,43 @@
 # You should have received a copy of the GNU General Public License
 # along with VargScore.  If not, see <http://www.gnu.org/licenses/>.
 
+import time
+import random
 from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
 
-from .database import Album, Band, Song
+from src.database import Album, Band, Song
 
 HEADER = {'User-Agent': 'Mozilla/5.0 Gecko/20100101 Firefox/90.0'}
 
 
-def _metallum_request(endpoint=None, id=None, base_url=None, endpart=None, params=None):
+metallum_session = requests.Session()
+
+
+def metallum_request(s, endpoint=None, id=None, base_url=None, tail=None, params=None):
     if not base_url:
         base_url = 'https://www.metal-archives.com'
+    if not id:
+        id = ''
+    if not tail:
+        tail = ''
 
-    url = urljoin(base=base_url, url=f'{endpoint}{id}{endpart}')
+    url = urljoin(base=base_url, url=f'{endpoint}{id}{tail}')
+    timeout_n = 0
 
-    r = requests.get(url, headers=HEADER, params=params)
+    time.sleep(random.uniform(1.0, 3.0))  # Wait between 1 and 3 seconds for initial request
 
-    try:
-        r.raise_for_status()
-    except requests.exceptions.HTTPError as e:
-        return 'Error' + str(e)
-
-    return r
+    while timeout_n < 10:  # Loop 10 times before quitting
+        try:
+            r = s.get(url, headers=HEADER, params=params)
+            r.raise_for_status()
+            return r
+        except requests.exceptions.HTTPError as errh:
+            timeout_n += 1
+            print(f'Error {errh}. Retrying {timeout_n} of 10')
+            time.sleep(6)  # Wait 6 seconds before resuming
 
 
 def find_id(url):
@@ -62,7 +75,7 @@ def clean_song_no(no):
 def scrape_robots_txt():
     robots = {}
     n = 0
-    r = _metallum_request('robots.txt', id='', endpart='')
+    r = metallum_request(metallum_session, 'robots.txt', id='')
     lines = r.text.splitlines()
     for line in lines:
         line = line.split(': ')
@@ -83,28 +96,49 @@ def scrape_band(id):
     band.id = id
 
     # Band Main Page
-    band_response = _metallum_request(band_endpoint, id)
+    band_response = metallum_request(metallum_session, band_endpoint, id)
 
     soup = BeautifulSoup(band_response.text, 'lxml')
 
     band.name = soup.find('h1', {'class': 'band_name'}).text
 
     band_dd = soup.find_all('dd')
-    band.country_of_origin = band_dd[0].text
-    band.location = band_dd[1].text
-    band.status = band_dd[2].text
-    band.formed_in = band_dd[3].text
-    band.years_active = band_dd[7].text
-    band.lyrical_themes = band_dd[5].text
-    band.current_label = band_dd[6].text
+    try:
+        band.country_of_origin = band_dd[0].text
+    except KeyError:
+        pass
+    try:
+        band.location = band_dd[1].text
+    except KeyError:
+        pass
+    try:
+        band.status = band_dd[2].text
+    except KeyError:
+        pass
+    try:
+        band.formed_in = band_dd[3].text
+    except KeyError:
+        pass
+    try:
+        band.years_active = band_dd[7].text
+    except KeyError:
+        pass
+    try:
+        band.lyrical_themes = band_dd[5].text
+    except KeyError:
+        pass
+    try:
+        band.current_label = band_dd[6].text
+    except KeyError:
+        pass
 
     # Band Read More
-    read_more_response = _metallum_request(read_more_endpoint, id)
+    read_more_response = metallum_request(metallum_session, read_more_endpoint, id)
     soup = BeautifulSoup(read_more_response.text, 'lxml')
     band.read_more_text = soup.text
 
     # Band Discography
-    albums_response = _metallum_request(albums_endpoint, id, endpart=albums_all_tab)
+    albums_response = metallum_request(metallum_session, albums_endpoint, id, tail=albums_all_tab)
 
     soup = BeautifulSoup(albums_response.text, 'lxml')
     album_links = soup.find_all('a', {'class': ['album', 'demo', 'other', 'single']})
@@ -118,43 +152,66 @@ def scrape_band(id):
     return band
 
 
-def scrape_album(id, album=None):
+def scrape_album(id):
     album_endpoint = 'albums/view/id/'
-    lyrics_endpoint = 'release/ajax-view-lyrics/id/'
 
-    album_response = _metallum_request(album_endpoint, id=id)
+    album_response = metallum_request(metallum_session, album_endpoint, id=id)
     soup = BeautifulSoup(album_response.text, 'lxml')
 
-    if album:
-        # Update album info from response
-        pass
-    else:
-        # Create new album
-        album = Album(id=id)
-        album.title = soup.find('h1', {'class': 'album_name'}).text
+    album = Album(id=id)
+    album.title = soup.find('h1', {'class': 'album_name'}).text
 
-        album_dd = soup.find_all('dd')
+    album_dd = soup.find_all('dd')
+    try:
         album.type = album_dd[0].text
+    except IndexError:
+        pass
+    try:
         album.release_date = album_dd[1].text
+    except IndexError:
+        pass
+    try:
         album.catalog_id = album_dd[2].text
+    except IndexError:
+        pass
+    try:
         album.version_desc = album_dd[3].text
+    except IndexError:
+        pass
+    try:
         album.label = album_dd[4].text
+    except IndexError:
+        pass
+    try:
         album.format = album_dd[5].text
+    except IndexError:
+        pass
+    try:
         album.limitation = album_dd[6].text
+    except IndexError:
+        pass
+    try:
         album.additional_notes = soup.find('div', {'id': 'album_tabs_notes'}).text
-        album.songs = []
-        album.band_id = find_id(soup.find('h2').a.attrs['href'])
+    except AttributeError:
+        pass
+    album.songs = []
+    album.band_id = find_id(soup.find('h2').a.attrs['href'])
 
-        songs_tr = soup.find_all('tr', {'class': ['even', 'odd']})
-        for tr in songs_tr:
-            song = Song(album_id=id)
-            song.id = find_id(tr.contents[1].a.attrs['name'][:-1])
-            song.no = clean_song_no(tr.contents[1].text)
-            song.title = tr.contents[3].text
-            song.length = tr.contents[5].text
-            lyrics_response = _metallum_request(lyrics_endpoint, id=song.id)
-            song.lyrics = lyrics_response.text
-
-            album.songs.append(song)
+    songs_table = soup.find('table', {'class': 'table_lyrics'})
+    songs_tr = songs_table.find_all('tr', {'class': ['even', 'odd']})
+    for tr in songs_tr:
+        song = Song(album_id=id)
+        song.id = find_id(tr.contents[1].a.attrs['name'])
+        song.no = clean_song_no(tr.contents[1].text)
+        song.title = tr.contents[3].text
+        song.length = tr.contents[5].text
+        album.songs.append(song)
 
     return album
+
+
+def scrape_lyrics(id):
+    lyrics_endpoint = 'release/ajax-view-lyrics/id/'
+
+    lyrics_response = metallum_request(metallum_session, lyrics_endpoint, id=id)
+    return lyrics_response.text

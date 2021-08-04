@@ -73,7 +73,7 @@ class Album(db.Model):
     version_desc = db.Column(db.Text)
     label = db.Column(db.Text)
     format = db.Column(db.Text)
-    limitation = db.Column(db.Text)
+    # limitation = db.Column(db.Text)
     additional_notes = db.Column(db.Text)
     songs = db.relationship('Song', backref=backref('album'))
     band_id = db.Column(db.Integer, db.ForeignKey('band.id'))
