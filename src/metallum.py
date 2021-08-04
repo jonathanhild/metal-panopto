@@ -30,7 +30,7 @@ HEADER = {'User-Agent': 'Mozilla/5.0 Gecko/20100101 Firefox/90.0'}
 metallum_session = requests.Session()
 
 
-def metallum_request(s, endpoint=None, id=None, base_url=None, tail=None, params=None):
+def metallum_request(s, endpoint=None, id=None, base_url=None, tail=None, params=None, pbar=None):
     if not base_url:
         base_url = 'https://www.metal-archives.com'
     if not id:
@@ -41,7 +41,7 @@ def metallum_request(s, endpoint=None, id=None, base_url=None, tail=None, params
     url = urljoin(base=base_url, url=f'{endpoint}{id}{tail}')
     timeout_n = 0
 
-    time.sleep(random.uniform(0.5, 3.0))  # Wait between 1 and 3 seconds for initial request
+    time.sleep(random.uniform(0.5, 2.0))  # Wait between 0.5 and 2 seconds for initial request
 
     while timeout_n < 10:  # Loop 10 times before quitting
         try:
@@ -50,8 +50,12 @@ def metallum_request(s, endpoint=None, id=None, base_url=None, tail=None, params
             return r
         except requests.exceptions.HTTPError as errh:
             timeout_n += 1
-            print(f'Error {errh}. Retrying {timeout_n} of 10')
-            time.sleep(random.uniform(3.0, 6.0))  # Wait 6 seconds before resuming
+            err_msg = f'{errh}. Retrying attempt {timeout_n} of 10.'
+            if pbar:
+                pbar.write(err_msg)
+            else:
+                print(err_msg)
+            time.sleep(random.uniform(3.0, 4.0))  # Wait between 3 and 4 seconds before resuming
 
 
 def find_id(url):
@@ -144,7 +148,6 @@ def scrape_band(id):
     album_links = soup.find_all('a', {'class': ['album', 'demo', 'other', 'single']})
 
     # M-A discography class labels are: album, other, demo, single.
-    band.discography = []
     for a in album_links:
         album = Album(id=find_id(a['href']), title=a.link, band_id=id)
         band.discography.append(album)
@@ -194,7 +197,6 @@ def scrape_album(id):
         album.additional_notes = soup.find('div', {'id': 'album_tabs_notes'}).text
     except AttributeError:
         pass
-    album.songs = []
     album.band_id = find_id(soup.find('h2').a.attrs['href'])
 
     songs_table = soup.find('table', {'class': 'table_lyrics'})
