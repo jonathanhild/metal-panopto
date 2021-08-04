@@ -8,11 +8,7 @@ from src.metallum import (find_id, metallum_request, metallum_session,
 
 letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
            'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'NBR', '~']
-payload = {
-    'sEcho': 1,
-    'iDisplayStart': 0,
-    'iDisplayLength': 500
-}
+
 
 # Initialize Flask app context and database
 
@@ -27,6 +23,11 @@ def get_bands_by_letter(letter):
     counter = 0
     endpoint = f'browse/ajax-letter/l/{letter}'
     genre_json_1 = '/json/1'
+    payload = {
+        'sEcho': 1,
+        'iDisplayStart': 0,
+        'iDisplayLength': 500
+    }
 
     pbar = tqdm(total=total_records, dynamic_ncols=True)
 
@@ -94,4 +95,5 @@ def crawl_lyrics(songs):
 
 
 if __name__ == '__main__':
-    get_bands_by_letter('A')
+    for letter in letters:
+        get_bands_by_letter(letter)
