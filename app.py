@@ -31,15 +31,20 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 load_dotenv(basedir, '.env')
 
-# Flask App configuration
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
-# Flask SQLAlchemy configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'data', 'vargdb.sqlite')}"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+def create_app():
+    app = Flask(__name__)
 
-db.init_app(app)
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(basedir, 'data', 'vargdb.sqlite')}"
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    db.init_app(app)
+
+    return app
+
+
+app = create_app()
 
 
 @app.route('/', methods=['GET', 'POST'])
