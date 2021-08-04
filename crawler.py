@@ -6,10 +6,8 @@ from src.database import Band, db
 from src.metallum import (find_id, metallum_request, metallum_session,
                           scrape_album, scrape_band)
 
-GENRE = ['black', 'death', 'doom', 'electronic', 'avantgarde', 'folk', 'gothic', 'grind',
-         'groove', 'heavy', 'metalcore', 'power', 'prog', 'speed', 'orchestral', 'thrash']
-
-
+letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
+           'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'NBR', '~']
 payload = {
     'sEcho': 1,
     'iDisplayStart': 0,
@@ -21,19 +19,19 @@ payload = {
 app = create_app()
 app.app_context().push()
 
-db.drop_all()
 db.create_all(app=app)
 
 
-def get_bands_by_genre(g):
-    total_records = 999_999_999
-    bands = []
-
-    endpoint = f'browse/ajax-genre/g/{g}'
+def get_bands_by_letter(letter):
+    total_records = 999_999
+    counter = 0
+    endpoint = f'browse/ajax-letter/l/{letter}'
     genre_json_1 = '/json/1'
 
+    pbar = tqdm(total=total_records, dynamic_ncols=True)
+
     while True:
-        r = metallum_request(metallum_session, endpoint=endpoint, id='', tail=genre_json_1, params=payload)
+        r = metallum_request(metallum_session, endpoint=endpoint, id='', tail=genre_json_1, params=payload, pbar=pbar)
         json = r.json()
 
         # While loop stopping condition, when json['aaData'] == []
@@ -42,29 +40,33 @@ def get_bands_by_genre(g):
 
         total_records = json['iTotalRecords']
 
-        fetching_msg = \
-            f"Fetching bands {payload['iDisplayStart']} to {payload['iDisplayStart'] + 499} of {total_records}"
+        pbar.total = total_records
+        bands_from = payload['iDisplayStart'] + 1
+        if (payload['iDisplayStart'] + 500) > total_records:
+            bands_to = total_records
+        else:
+            bands_to = payload['iDisplayStart'] + 500
+        pbar.desc = f"Fetching bands {bands_from} to {bands_to} for letter '{letter}'."
 
-        pbar = tqdm(json['aaData'], desc=fetching_msg, dynamic_ncols=True)
-
-        for i in pbar:
+        for i in json['aaData']:
             soup = BeautifulSoup(i[0], 'lxml')
             href = soup.a['href']
             id = find_id(href)
             name = soup.a.text
             band = Band(id=id, name=name)
-            bands.append(band)
+            db.session.add(band)
+            counter += 1
 
-        # Save to database
-        db.session.add_all(bands)
-        db.session.commit()
+            pbar.update()
+
+            # Save to database
+            db.session.commit()
 
         payload['iDisplayStart'] += payload['iDisplayLength']
 
     tqdm.write('Crawling bands finished.')
-    tqdm.write(f'A total of {len(bands)} bands was inserted into the database from {endpoint}.')
-
-    return bands
+    tqdm.write(f'A total of {counter} bands was inserted into the database from {endpoint}.')
+    pbar.clear()
 
 
 def crawl_bands(bands):
@@ -72,7 +74,7 @@ def crawl_bands(bands):
     for band in pbar:
         pbar.set_description(f'Scraping band data for {band.name} (id: {band.id})')
         band = scrape_band(band.id)
-        db.session.commit()
+    db.session.commit()
 
 
 def crawl_albums(albums):
@@ -92,6 +94,4 @@ def crawl_lyrics(songs):
 
 
 if __name__ == '__main__':
-    bands = get_bands_by_genre('avantgarde')
-    crawl_bands(bands)
-    db.session.close()
+    get_bands_by_letter('A')
