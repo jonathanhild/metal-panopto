@@ -41,7 +41,7 @@ def metallum_request(s, endpoint=None, id=None, base_url=None, tail=None, params
     url = urljoin(base=base_url, url=f'{endpoint}{id}{tail}')
     timeout_n = 0
 
-    time.sleep(random.uniform(1.0, 3.0))  # Wait between 1 and 3 seconds for initial request
+    time.sleep(random.uniform(0.5, 3.0))  # Wait between 1 and 3 seconds for initial request
 
     while timeout_n < 10:  # Loop 10 times before quitting
         try:
@@ -51,7 +51,7 @@ def metallum_request(s, endpoint=None, id=None, base_url=None, tail=None, params
         except requests.exceptions.HTTPError as errh:
             timeout_n += 1
             print(f'Error {errh}. Retrying {timeout_n} of 10')
-            time.sleep(6)  # Wait 6 seconds before resuming
+            time.sleep(random.uniform(3.0, 6.0))  # Wait 6 seconds before resuming
 
 
 def find_id(url):
