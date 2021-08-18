@@ -19,7 +19,7 @@ db.create_all(app=app)
 
 
 def get_bands_by_letter(letter):
-    total_records = 999_999
+    total_records = 999_999  # Large default value to allow for request initialization.
     counter = 0
     endpoint = f'browse/ajax-letter/l/{letter}'
     genre_json_1 = '/json/1'
@@ -56,12 +56,11 @@ def get_bands_by_letter(letter):
             name = soup.a.text
             band = Band(id=id, name=name)
             db.session.add(band)
+            # Save to database
+            db.session.commit()
             counter += 1
 
             pbar.update()
-
-            # Save to database
-            db.session.commit()
 
         payload['iDisplayStart'] += payload['iDisplayLength']
 
