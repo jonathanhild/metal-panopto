@@ -71,7 +71,6 @@ def get_bands_by_letter(letter):
         payload['iDisplayStart'] += payload['iDisplayLength']
 
     tqdm.write(f'Finished. A total of {counter} bands was inserted into the database from {endpoint}.')
-    # pbar.clear()
 
 
 def crawl_bands():
@@ -82,7 +81,7 @@ def crawl_bands():
         pbar.set_description(f'Scraping band data for {band.name} (id: {band.id})')
         band = scrape_band(band.id)
         bands[i] = band
-    db.session.commit()
+        db.session.commit()
 
 
 def crawl_albums(albums):
