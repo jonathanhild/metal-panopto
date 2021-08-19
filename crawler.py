@@ -2,7 +2,8 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 
 from app import create_app
-from src.database import Band, db
+from sqlalchemy import exc
+from src.database import Album, Band, Song, db
 from src.metallum import (find_id, metallum_request, metallum_session,
                           scrape_album, scrape_band)
 
@@ -29,7 +30,7 @@ def get_bands_by_letter(letter):
         'iDisplayLength': 500
     }
 
-    pbar = tqdm(total=total_records, dynamic_ncols=True)
+    pbar = tqdm(total=total_records, dynamic_ncols=True, position=-1)
 
     while True:
         r = metallum_request(metallum_session, endpoint=endpoint, id='', tail=genre_json_1, params=payload, pbar=pbar)
@@ -55,44 +56,61 @@ def get_bands_by_letter(letter):
             id = find_id(href)
             name = soup.a.text
             band = Band(id=id, name=name)
-            db.session.add(band)
-            # Save to database
-            db.session.commit()
+
+            try:
+                db.session.add(band)
+                # Save to database
+                db.session.commit()
+            except exc.IntegrityError:
+                db.session.rollback()
+                next
             counter += 1
 
             pbar.update()
 
         payload['iDisplayStart'] += payload['iDisplayLength']
 
-    tqdm.write('Crawling bands finished.')
-    tqdm.write(f'A total of {counter} bands was inserted into the database from {endpoint}.')
-    pbar.clear()
+    tqdm.write(f'Finished. A total of {counter} bands was inserted into the database from {endpoint}.')
+    # pbar.clear()
 
 
-def crawl_bands(bands):
-    pbar = tqdm(bands, dynamic_ncols=True)
-    for band in pbar:
+def crawl_bands():
+    bands = Band.query.all()
+    pbar = tqdm(bands, dynamic_ncols=True, position=-1)
+    tqdm.write('Crawling Bands.')
+    for i, band in enumerate(pbar):
         pbar.set_description(f'Scraping band data for {band.name} (id: {band.id})')
         band = scrape_band(band.id)
+        bands[i] = band
     db.session.commit()
 
 
 def crawl_albums(albums):
-    pbar = tqdm(albums, dynamic_ncols=True)
-    for album in pbar:
+    pbar = tqdm(albums, dynamic_ncols=True, position=-1)
+    tqdm.write('Crawling Albums.')
+    for i, album in enumerate(pbar):
         pbar.set_description(f'Scraping album data for {album.title} (id: {album.id})')
         album = scrape_album(album.id)
+        albums[i] = album
         db.session.commit()
 
 
 def crawl_lyrics(songs):
-    pbar = tqdm(songs, dynamic_ncols=True)
-    for song in pbar:
+    pbar = tqdm(songs, dynamic_ncols=True, position=-1)
+    tqdm.write('Crawling Lyrics.')
+    for i, song in enumerate(pbar):
         pbar.set_description(f'Scraping song lyrics for {song.title} (id: {song.id})')
         song = crawl_lyrics(song.id)
+        songs[i] = song
         db.session.commit()
 
 
 if __name__ == '__main__':
     for letter in letters:
         get_bands_by_letter(letter)
+
+    crawl_bands()
+    # albums = Album.query.all()
+    # crawl_albums(albums)
+    # songs = Song.query.all()
+    # crawl_lyrics(songs)
