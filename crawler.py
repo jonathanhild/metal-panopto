@@ -84,7 +84,8 @@ def crawl_bands():
         db.session.commit()
 
 
-def crawl_albums(albums):
+def crawl_albums():
+    albums = Album.query.all()
     pbar = tqdm(albums, dynamic_ncols=True, position=-1)
     tqdm.write('Crawling Albums.')
     for i, album in enumerate(pbar):
@@ -94,7 +95,8 @@ def crawl_albums(albums):
         db.session.commit()
 
 
-def crawl_lyrics(songs):
+def crawl_lyrics():
+    songs = Song.query.all()
     pbar = tqdm(songs, dynamic_ncols=True, position=-1)
     tqdm.write('Crawling Lyrics.')
     for i, song in enumerate(pbar):
@@ -109,7 +111,5 @@ if __name__ == '__main__':
         get_bands_by_letter(letter)
 
     crawl_bands()
-    # albums = Album.query.all()
-    # crawl_albums(albums)
-    # songs = Song.query.all()
-    # crawl_lyrics(songs)
+    crawl_albums()
+    crawl_lyrics()
