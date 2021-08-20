@@ -22,7 +22,7 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
-from src.database import Album, Band, Song
+from src.database import Album, Song
 
 HEADER = {'User-Agent': 'Mozilla/5.0 Gecko/20100101 Firefox/90.0'}
 
@@ -91,13 +91,12 @@ def scrape_robots_txt():
     return robots
 
 
-def scrape_band(id):
+def scrape_band(band):
     band_endpoint = 'band/view/id/'
     read_more_endpoint = 'band/read-more/id/'
     albums_endpoint = 'band/discography/id/'
     albums_all_tab = '/tab/all/'
-    band = Band()
-    band.id = id
+    id = band.id
 
     # Band Main Page
     band_response = metallum_request(metallum_session, band_endpoint, id)
@@ -155,13 +154,12 @@ def scrape_band(id):
     return band
 
 
-def scrape_album(id):
+def scrape_album(album):
     album_endpoint = 'albums/view/id/'
 
     album_response = metallum_request(metallum_session, album_endpoint, id=id)
     soup = BeautifulSoup(album_response.text, 'lxml')
 
-    album = Album(id=id)
     album.title = soup.find('h1', {'class': 'album_name'}).text
 
     album_dd = soup.find_all('dd')
@@ -212,8 +210,11 @@ def scrape_album(id):
     return album
 
 
-def scrape_lyrics(id):
+def scrape_lyrics(song):
     lyrics_endpoint = 'release/ajax-view-lyrics/id/'
 
     lyrics_response = metallum_request(metallum_session, lyrics_endpoint, id=id)
-    return lyrics_response.text
+
+    song.lyrics = lyrics_response
+
+    return song
