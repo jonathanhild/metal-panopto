@@ -1,12 +1,13 @@
+import click
 from bs4 import BeautifulSoup
+from click.termui import confirm
+from sqlalchemy import exc
 from tqdm import tqdm
 
 from app import create_app
-from sqlalchemy import exc
 from src.database import Album, Band, Song, db
 from src.metallum import (find_id, metallum_request, metallum_session,
-                          scrape_album, scrape_band)
-
+                          scrape_album, scrape_band, scrape_lyrics)
 
 # Initialize Flask app context and database
 
@@ -16,7 +17,13 @@ app.app_context().push()
 db.create_all(app=app)
 
 
-def get_bands_by_letter():
+@click.group()
+def main():
+    pass
+
+
+@main.command()
+def band_list():
     letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
                'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'NBR', '~']
     for letter in letters:
@@ -74,7 +81,8 @@ def get_bands_by_letter():
         tqdm.write(f'Finished. A total of {counter} bands was inserted into the database from {endpoint}.')
 
 
-def crawl_bands():
+@main.command()
+def bands():
     bands = Band.query.all()
     pbar = tqdm(bands, dynamic_ncols=True, position=-1)
     tqdm.write('Crawling Bands.')
@@ -87,7 +95,8 @@ def crawl_bands():
             db.session.rollback()
 
 
-def crawl_albums():
+@main.command()
+def albums():
     albums = Album.query.all()
     pbar = tqdm(albums, dynamic_ncols=True, position=-1)
     tqdm.write('Crawling Albums.')
@@ -100,20 +109,29 @@ def crawl_albums():
             db.session.rollback()
 
 
-def crawl_lyrics():
+@main.command()
+def lyrics():
     songs = Song.query.all()
     pbar = tqdm(songs, dynamic_ncols=True, position=-1)
     tqdm.write('Crawling Lyrics.')
     for song in pbar:
         pbar.set_description(f'Scraping song lyrics for {song.title} (id: {song.id})')
-        crawl_lyrics(song)
+        scrape_lyrics(song)
         try:
             db.session.commit()
         except exc.IntegrityError:
             db.session.rollback()
 
 
-if __name__ == '__main__':
-    get_bands_by_letter()
+@main.command()
+@click.argument('confirm', type=click.STRING)
+def delete_db(confirm):
+    if confirm == 'yes':
+        db.drop_all()
+        click.echo('All data tables deleted.')
+    else:
+        click.echo("Please confirm database deletion with 'delete-db yes'")
 
-    crawl_bands()
+
+if __name__ == '__main__':
+    main()
