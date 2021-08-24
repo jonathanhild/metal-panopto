@@ -83,7 +83,7 @@ def band_list():
 
 @main.command()
 def bands():
-    bands = Band.query.all()
+    bands = Band.query.filter(Band.status == None).all()
     pbar = tqdm(bands, dynamic_ncols=True, position=-1)
     tqdm.write('Crawling Bands.')
     for band in pbar:
