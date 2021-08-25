@@ -97,7 +97,7 @@ def bands():
 
 @main.command()
 def read_more():
-    bands = Band.query.filter(Band.status == None).all()
+    bands = Band.query.filter(Band.read_more_text == None).all()
     pbar = tqdm(bands, dynamic_ncols=True, position=-1)
     tqdm.write('Crawling Bands - Read More Text.')
     for band in pbar:
@@ -111,7 +111,7 @@ def read_more():
 
 @main.command()
 def dicography():
-    bands = Band.query.filter(Band.status == None).all()
+    bands = Band.query.filter(Band.discography == None).all()
     pbar = tqdm(bands, dynamic_ncols=True, position=-1)
     tqdm.write('Crawling Bands - Read More Text.')
     for band in pbar:
