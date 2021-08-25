@@ -93,9 +93,6 @@ def scrape_robots_txt():
 
 def scrape_band(band):
     band_endpoint = 'band/view/id/'
-    read_more_endpoint = 'band/read-more/id/'
-    albums_endpoint = 'band/discography/id/'
-    albums_all_tab = '/tab/all/'
     id = band.id
 
     # Band Main Page
@@ -138,12 +135,25 @@ def scrape_band(band):
     except KeyError:
         pass
 
+    return band
+
+
+def scrape_read_more(band):
+    read_more_endpoint = 'band/read-more/id/'
+
     # Band Read More
     read_more_response = metallum_request(metallum_session, read_more_endpoint, id)
     if not read_more_response.text:
         pass
     soup = BeautifulSoup(read_more_response.text, 'lxml')
     band.read_more_text = soup.text
+
+    return band
+
+
+def scrape_discography(band):
+    albums_endpoint = 'band/discography/id/'
+    albums_all_tab = '/tab/all/'
 
     # Band Discography
     albums_response = metallum_request(metallum_session, albums_endpoint, id, tail=albums_all_tab)

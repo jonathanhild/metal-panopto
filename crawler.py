@@ -1,13 +1,13 @@
 import click
 from bs4 import BeautifulSoup
-from click.termui import confirm
 from sqlalchemy import exc
 from tqdm import tqdm
 
 from app import create_app
 from src.database import Album, Band, Song, db
 from src.metallum import (find_id, metallum_request, metallum_session,
-                          scrape_album, scrape_band, scrape_lyrics)
+                          scrape_album, scrape_band, scrape_discography,
+                          scrape_lyrics, scrape_read_more)
 
 # Initialize Flask app context and database
 
@@ -89,6 +89,34 @@ def bands():
     for band in pbar:
         pbar.set_description(f'Scraping band data for {band.name} (id: {band.id})')
         scrape_band(band)
+        try:
+            db.session.commit()
+        except exc.IntegrityError:
+            db.session.rollback()
+
+
+@main.command()
+def read_more():
+    bands = Band.query.filter(Band.status == None).all()
+    pbar = tqdm(bands, dynamic_ncols=True, position=-1)
+    tqdm.write('Crawling Bands - Read More Text.')
+    for band in pbar:
+        pbar.set_description(f'Scraping band data for {band.name} (id: {band.id})')
+        scrape_read_more(band)
+        try:
+            db.session.commit()
+        except exc.IntegrityError:
+            db.session.rollback()
+
+
+@main.command()
+def dicography():
+    bands = Band.query.filter(Band.status == None).all()
+    pbar = tqdm(bands, dynamic_ncols=True, position=-1)
+    tqdm.write('Crawling Bands - Read More Text.')
+    for band in pbar:
+        pbar.set_description(f'Scraping band data for {band.name} (id: {band.id})')
+        scrape_discography(band)
         try:
             db.session.commit()
         except exc.IntegrityError:
