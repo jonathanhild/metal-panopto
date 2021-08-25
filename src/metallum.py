@@ -101,6 +101,9 @@ def scrape_band(band):
     # Band Main Page
     band_response = metallum_request(metallum_session, band_endpoint, id)
 
+    if not band_response.text:
+        return band
+
     soup = BeautifulSoup(band_response.text, 'lxml')
 
     band.name = soup.find('h1', {'class': 'band_name'}).text
@@ -137,11 +140,15 @@ def scrape_band(band):
 
     # Band Read More
     read_more_response = metallum_request(metallum_session, read_more_endpoint, id)
+    if not read_more_response.text:
+        pass
     soup = BeautifulSoup(read_more_response.text, 'lxml')
     band.read_more_text = soup.text
 
     # Band Discography
     albums_response = metallum_request(metallum_session, albums_endpoint, id, tail=albums_all_tab)
+    if not albums_response.text:
+        return band
 
     soup = BeautifulSoup(albums_response.text, 'lxml')
     album_links = soup.find_all('a', {'class': ['album', 'demo', 'other', 'single']})
