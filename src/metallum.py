@@ -41,7 +41,7 @@ def metallum_request(s, endpoint=None, id=None, base_url=None, tail=None, params
     url = urljoin(base=base_url, url=f'{endpoint}{id}{tail}')
     timeout_n = 0
 
-    time.sleep(random.uniform(0.5, 2.0))  # Wait between 0.5 and 2 seconds for initial request
+    time.sleep(random.uniform(0.1, 1.0))  # Wait between 0.5 and 2 seconds for initial request
 
     while timeout_n < 10:  # Loop 10 times before quitting
         try:
