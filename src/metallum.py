@@ -43,19 +43,21 @@ def metallum_request(s, endpoint=None, id=None, base_url=None, tail=None, params
 
     time.sleep(random.uniform(0.1, 1.0))  # Wait between 0.5 and 2 seconds for initial request
 
-    while timeout_n < 10:  # Loop 10 times before quitting
+    while timeout_n < 5:  # Loop 10 times before quitting
         try:
             r = s.get(url, headers=HEADER, params=params)
             r.raise_for_status()
             return r
         except requests.exceptions.HTTPError as errh:
             timeout_n += 1
-            err_msg = f'{errh}. Retrying attempt {timeout_n} of 10.'
+            err_msg = f'{errh}. Retrying attempt {timeout_n} of 5.'
             if pbar:
                 pbar.write(err_msg)
             else:
                 print(err_msg)
             time.sleep(random.uniform(3.0, 4.0))  # Wait between 3 and 4 seconds before resuming
+        except requests.exceptions.ConnectionError as errc:
+            return None
 
 
 def find_id(url):
@@ -98,7 +100,7 @@ def scrape_band(band):
     # Band Main Page
     band_response = metallum_request(metallum_session, band_endpoint, id)
 
-    if not band_response.text:
+    if not band_response:
         return band
 
     soup = BeautifulSoup(band_response.text, 'lxml')
@@ -143,7 +145,7 @@ def scrape_read_more(band):
 
     # Band Read More
     read_more_response = metallum_request(metallum_session, read_more_endpoint, id)
-    if not read_more_response.text:
+    if not read_more_response:
         pass
     soup = BeautifulSoup(read_more_response.text, 'lxml')
     band.read_more_text = soup.text
@@ -157,7 +159,7 @@ def scrape_discography(band):
 
     # Band Discography
     albums_response = metallum_request(metallum_session, albums_endpoint, id, tail=albums_all_tab)
-    if not albums_response.text:
+    if not albums_response:
         return band
 
     soup = BeautifulSoup(albums_response.text, 'lxml')
@@ -175,6 +177,8 @@ def scrape_album(album):
     album_endpoint = 'albums/view/id/'
 
     album_response = metallum_request(metallum_session, album_endpoint, id=id)
+    if not album_response:
+        return album
     soup = BeautifulSoup(album_response.text, 'lxml')
 
     album.title = soup.find('h1', {'class': 'album_name'}).text
@@ -231,6 +235,8 @@ def scrape_lyrics(song):
     lyrics_endpoint = 'release/ajax-view-lyrics/id/'
 
     lyrics_response = metallum_request(metallum_session, lyrics_endpoint, id=id)
+    if not lyrics_response:
+        return song
 
     song.lyrics = lyrics_response
 
