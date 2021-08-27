@@ -111,16 +111,24 @@ def read_more():
 
 @main.command()
 def discography():
-    bands = Band.query.all()
+    album_subquery = db.session.query(Album.band_id).distinct()
+    bands = Band.query.filter(Band.id.not_in(album_subquery)).all()
     pbar = tqdm(bands, dynamic_ncols=True, position=-1)
     tqdm.write('Crawling Bands - Discography.')
     for band in pbar:
         pbar.set_description(f'Scraping band data for {band.name} (id: {band.id})')
-        scrape_discography(band)
+        albums = scrape_discography(band)
+        db.session.add_all(albums)
         try:
             db.session.commit()
         except exc.IntegrityError:
+            tqdm.write('Duplicate album found. ')
             db.session.rollback()
+            for album in albums:
+                if db.session.query(Album.id).filter_by(id=album.id).scalar():
+                    albums.remove(album)
+            db.session.add_all(albums)
+            db.session.commit()
 
 
 @main.command()

@@ -156,25 +156,27 @@ def scrape_read_more(band):
 def scrape_discography(band):
     albums_endpoint = 'band/discography/id/'
     albums_all_tab = '/tab/all/'
+    id = band.id
+    albums = []
 
     # Band Discography
-    albums_response = metallum_request(metallum_session, albums_endpoint, id, tail=albums_all_tab)
+    albums_response = metallum_request(metallum_session, albums_endpoint, id=id, tail=albums_all_tab)
     if not albums_response:
         return band
 
     soup = BeautifulSoup(albums_response.text, 'lxml')
-    album_links = soup.find_all('a', {'class': ['album', 'demo', 'other', 'single']})
-
     # M-A discography class labels are: album, other, demo, single.
+    album_links = soup.find_all('a', {'class': ['album', 'demo', 'other', 'single']})
     for a in album_links:
         album = Album(id=find_id(a['href']), title=a.link, band_id=id)
-        band.discography.append(album)
+        albums.append(album)
 
-    return band
+    return albums
 
 
 def scrape_album(album):
     album_endpoint = 'albums/view/id/'
+    id = album.id
 
     album_response = metallum_request(metallum_session, album_endpoint, id=id)
     if not album_response:
