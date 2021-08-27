@@ -117,17 +117,17 @@ def discography():
     tqdm.write('Crawling Bands - Discography.')
     for band in pbar:
         pbar.set_description(f'Scraping band data for {band.name} (id: {band.id})')
-        albums = scrape_discography(band)
-        db.session.add_all(albums)
+        band_albums = scrape_discography(band)
         try:
+            db.session.add_all(band_albums)
             db.session.commit()
         except exc.IntegrityError:
-            tqdm.write('Duplicate album found. ')
             db.session.rollback()
-            for album in albums:
-                if db.session.query(Album.id).filter_by(id=album.id).scalar():
-                    albums.remove(album)
-            db.session.add_all(albums)
+            band_albums_deduplicated = []
+            for album in band_albums:
+                if not db.session.query(Album.id).filter_by(id=album.id).scalar():
+                    band_albums_deduplicated.append(album)
+            db.session.add_all(band_albums_deduplicated)
             db.session.commit()
 
 

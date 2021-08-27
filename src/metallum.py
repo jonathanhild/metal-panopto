@@ -162,7 +162,7 @@ def scrape_discography(band):
     # Band Discography
     albums_response = metallum_request(metallum_session, albums_endpoint, id=id, tail=albums_all_tab)
     if not albums_response:
-        return band
+        return albums
 
     soup = BeautifulSoup(albums_response.text, 'lxml')
     # M-A discography class labels are: album, other, demo, single.
