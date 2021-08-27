@@ -46,12 +46,12 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Python: Crawler Band List",
+            "name": "Python: Crawler Discography",
             "type": "python",
             "request": "launch",
             "program": "crawler.py",
             "args": [
-                "band-list"
+                "discography"
             ],
             "console": "integratedTerminal"
         },
