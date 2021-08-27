@@ -113,7 +113,7 @@ def read_more():
 def discography():
     bands = Band.query.all()
     pbar = tqdm(bands, dynamic_ncols=True, position=-1)
-    tqdm.write('Crawling Bands - Read More Text.')
+    tqdm.write('Crawling Bands - Discography.')
     for band in pbar:
         pbar.set_description(f'Scraping band data for {band.name} (id: {band.id})')
         scrape_discography(band)
