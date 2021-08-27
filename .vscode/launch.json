@@ -24,6 +24,76 @@
                 "run"
             ],
             "jinja": true
-        }
+        },
+        {
+            "name": "Python: Crawler Band List",
+            "type": "python",
+            "request": "launch",
+            "program": "crawler.py",
+            "args": [
+                "band-list"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: Crawler Band",
+            "type": "python",
+            "request": "launch",
+            "program": "crawler.py",
+            "args": [
+                "bands"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: Crawler Band List",
+            "type": "python",
+            "request": "launch",
+            "program": "crawler.py",
+            "args": [
+                "band-list"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: Crawler Read More",
+            "type": "python",
+            "request": "launch",
+            "program": "crawler.py",
+            "args": [
+                "read-more"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: Crawler Albums",
+            "type": "python",
+            "request": "launch",
+            "program": "crawler.py",
+            "args": [
+                "albums"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: Crawler Lyrics",
+            "type": "python",
+            "request": "launch",
+            "program": "crawler.py",
+            "args": [
+                "lyrics"
+            ],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: Crawler Delete DB",
+            "type": "python",
+            "request": "launch",
+            "program": "crawler.py",
+            "args": [
+                "delete-db"
+            ],
+            "console": "integratedTerminal"
+        },
     ]
 }
