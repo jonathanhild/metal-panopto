@@ -185,33 +185,29 @@ def scrape_album(album):
 
     album.title = soup.find('h1', {'class': 'album_name'}).text
 
-    album_dd = soup.find_all('dd')
+    # <dl class="float_left"><dd>
+    album_left_dd = soup.select('dl.float_left > dd')
     try:
-        album.type = album_dd[0].text
+        album.type = album_left_dd[0].text
     except IndexError:
         pass
     try:
-        album.release_date = album_dd[1].text
+        album.release_date = album_left_dd[1].text
     except IndexError:
         pass
     try:
-        album.catalog_id = album_dd[2].text
+        album.catalog_id = album_left_dd[2].text
     except IndexError:
         pass
     try:
-        album.version_desc = album_dd[3].text
+        album.version_desc = album_left_dd[3].text
     except IndexError:
         pass
+
+    # <dl class="float_right"><dd>
+    album_right_dd = soup.select('dl.float_right > dd')
     try:
-        album.label = album_dd[4].text
-    except IndexError:
-        pass
-    try:
-        album.format = album_dd[5].text
-    except IndexError:
-        pass
-    try:
-        album.limitation = album_dd[6].text
+        album.label = album_right_dd[0].text
     except IndexError:
         pass
     try:
